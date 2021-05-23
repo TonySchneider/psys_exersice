@@ -2,7 +2,7 @@ version: '3'
 services:
     hercules:
         # build: hercules
-        image: tonysch05/nginx:latest
+        image: tonysch05/nginx_ssh:latest
         container_name: hercules_container
         ports:
             - "80:80"
