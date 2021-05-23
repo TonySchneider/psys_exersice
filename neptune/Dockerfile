@@ -1,13 +1,12 @@
 # using the lightweight image as required (3.7-alpine)
 FROM python:3.7-alpine
 
-# copy supervisord config for multiple services and the python accessible test
-COPY supervisord.conf /etc/supervisord.conf
+# copy the python accessible test
 COPY accessible_test /accessible_test
 
-# install ssh service (apk instead of apt since it's alpine image), rc tool, supervisor & nmap
+# install ssh service (apk instead of apt since it's alpine image), rc tool & nmap
 RUN apk update \
-	&& apk add --update --no-cache openssh openrc supervisor nmap
+	&& apk add --update --no-cache openssh openrc nmap
 
 # enable ssh service
 RUN rc-update add sshd
@@ -26,7 +25,7 @@ RUN /etc/init.d/sshd start
 RUN python -m pip install -r accessible_test/requirements.txt
 
 # just publish the ports at the image documentations
-EXPOSE 80 22
+EXPOSE 22
 
 # run the supervisord
-CMD ["/usr/bin/supervisord", "-c", "/etc/supervisord.conf"]
+CMD ["/usr/sbin/sshd", "-D"]

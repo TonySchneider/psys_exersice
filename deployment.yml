@@ -1,7 +1,12 @@
 ---
 
 - name: Install python & nginx containers, run nmap command and check accessibility
-  hosts: all
+  hosts: localhost
+  vars:
+    hercules_container_ip: "172.20.0.2"
+    neptune_container_ip: "172.20.0.3"
+    nmap_log_file_path: "/var/log/nmap-hercules.log"
+  become: true
   tasks:
 
     - name: pull the necessary files to install the containers
@@ -9,7 +14,68 @@
         repo: https://github.com/TonySchneider/psys_exersice.git
         dest: psys_exersice
 
+    - name: create volumes if they do not exist
+      file:
+        path: "{{ item }}"
+        state: directory
+      with_items:
+        - /mnt/logs/hercules
+        - /mnt/logs/hercules/nginx
+        - /mnt/logs/neptune
+
+    - name: create nginx log files
+      file:
+        path: "{{ item }}"
+        state: file
+      with_items:
+        - /mnt/logs/hercules/nginx/access.log
+        - /mnt/logs/hercules/nginx/error.log
+
     - name: run docker-compose
       shell: docker-compose up -d
       args:
         chdir: psys_exersice/
+
+    - debug:
+        msg:
+          - "hercules_container_ip - {{ hercules_container_ip }}"
+          - "neptune_container_ip - {{ neptune_container_ip }}"
+
+    - name: check nginx port
+      wait_for:
+        host: "{{ hercules_container_ip }}"
+        port: 80
+        state: drained
+
+    - name: check ssh connection
+      wait_for:
+        host: "{{ item }}"
+        port: 22
+        state: drained
+      with_items:
+        - "{{ neptune_container_ip }}"
+        - "{{ hercules_container_ip }}"
+
+    - name: check if the web page is up and reachable
+      uri:
+        url: "http://localhost:80/"
+        method: GET
+        status_code: 200
+
+    - name: run nmap command from neptune
+      shell: docker exec neptune_container /bin/sh -c "nmap -p80,22 -oN {{ nmap_log_file_path }} {{ hercules_container_ip }}"
+      register: nmap_output
+
+    - name: Check that the somefile.conf exists
+      stat:
+        path: "{{ nmap_log_file_path }}"
+
+    - name: print nmap command output
+      debug: var=nmap_output.stdout_lines
+
+    - name: run python script
+      shell: docker exec neptune_container /bin/sh -c "cd accessible_test; python client.py {{ hercules_container_ip }} 80"
+      register: python_script_output
+
+    - name: print python script output
+      debug: var=python_script_output.stdout_lines
