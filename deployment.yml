@@ -3,8 +3,13 @@
 - name: Install python & nginx containers, run nmap command and check accessibility
   hosts: all
   tasks:
-  
-    - git:
-        repo: ssh://git@github.com/mylogin/hello.git
-        dest: /home/mylogin/hello
-    
+
+    - name: pull the necessary files to install the containers
+      git:
+        repo: https://github.com/TonySchneider/psys_exersice.git
+        dest: psys_exersice
+
+    - name: run docker-compose
+      shell: docker-compose up -d
+      args:
+        chdir: psys_exersice/
