@@ -1,0 +1,10 @@
+---
+
+- name: Install python & nginx containers, run nmap command and check accessibility
+  hosts: all
+  tasks:
+  
+    - git:
+        repo: ssh://git@github.com/mylogin/hello.git
+        dest: /home/mylogin/hello
+    

@@ -1,0 +1,20 @@
+version: '3'
+services:
+    hercules:
+        image: tonysch05/ngnix_ssh:latest
+        container_name: hercules_container
+        ports:
+            - "80:80"
+            - "2222:22"
+        volumes:
+            - /mnt/logs/hercules:/var/log
+    neptune:
+        build: neptune
+        image: tonysch05/python_ssh:latest
+        container_name: neptune_container
+        ports:
+            - "2211:22"
+        volumes:
+            - /mnt/logs/neptune:/var/log
+        environment:
+            - HERCULES_CONTAINER_IP=172.17.0.1
