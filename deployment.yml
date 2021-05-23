@@ -63,7 +63,7 @@
         status_code: 200
 
     - name: run nmap command from neptune
-      shell: docker exec neptune_container /bin/sh -c "nmap -p80,22 -oN {{ nmap_log_file_path }} {{ neptune_container_ip }}"
+      shell: docker exec neptune_container /bin/sh -c "nmap -p80,22 -oN {{ nmap_log_file_path }} {{ hercules_container_ip }}"
       register: nmap_output
 
     - name: Check that the somefile.conf exists
@@ -74,7 +74,7 @@
       debug: var=nmap_output.stdout_lines
 
     - name: run python script
-      shell: docker exec neptune_container /bin/sh -c "cd accessible_test; python client.py {{ neptune_container_ip }} 80"
+      shell: docker exec neptune_container /bin/sh -c "cd accessible_test; python client.py {{ hercules_container_ip }} 80"
       register: python_script_output
 
     - name: print python script output

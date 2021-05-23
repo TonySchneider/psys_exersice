@@ -23,3 +23,8 @@ services:
         networks:
             vpcbr:
                 ipv4_address: 172.20.0.3
+networks:
+  vpcbr:
+    ipam:
+      config:
+        - subnet: 172.20.0.0/24

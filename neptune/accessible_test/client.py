@@ -10,7 +10,7 @@ import requests
 import sys
 import logging
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s | %(levelname)-10s | %(message)s', handlers=[logging.FileHandler("accessible_test.log"), logging.StreamHandler()])
+logging.basicConfig (level=logging.INFO, format='%(asctime)s | %(levelname)-10s | %(message)s', stream=sys.stdout)
 
 
 def ping(ip: str, port: str) -> bool:
